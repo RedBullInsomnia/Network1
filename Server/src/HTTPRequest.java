@@ -1,10 +1,7 @@
-public class Response {
+public class HTTPRequest {
 	// HTML Codes
-	private static String badRequest = new String(
-			"HTTP/1.1 400 Bad Request\r\n");
-	private static String ok = new String("HTTP/1.1 200 OK\r\n");
-	private static String notImplemented = new String(
-			"HTTP/1.1 501 Not Implemented\r\n");
+	private static String HTTP = new String(
+			"HTTP/1.1");
 
 	// Server and content info
 	private static String server = new String("Host : EchoServer\r\n");
@@ -29,73 +26,83 @@ public class Response {
 
 	/*
 	 * 
-	 */
-	public static boolean verifyRequest(String s) {
-		String splits[] = s.split("\\s");
-
-		if (splits[0].equals("GET") && splits[1].equals("/")
-				&& splits[2].equals("HTTP/1.1"))
-			return true;
-		else
-			return false;
-	}
-
-	/*
-	 * 
-	 */
-	public static String badRequest(String s) {
-		// compute length of html message to fill-in Content-Length field
+//	 */
+//	public static boolean verifyRequest(String s) {
+//		String splits[] = s.split("\\s");
+//
+//		if (splits[0].equals("GET") && splits[1].equals("/")
+//				&& splits[2].equals("HTTP/1.1"))
+//			return true;
+//		else
+//			return false;
+//	}
+//	
+	public static String echo(String s)
+	{
 		int len = (header.length() + content.length() + request.length())
 				+ s.length() + 4;
-		return badRequest + server + contentType + length + len + "\r\n\r\n"
-				+ header + content + request + s + end;
-	}
-
-	/*
-	 * 
-	 */
-	public static String ok(String s) {
-		// compute length of html message to fill-in Content-Length field
-		int len = (header.length() + content.length() + request.length())
-				+ s.length() + 4;
-		String answer = ok + server + contentType + length + len + "\r\n\r\n"
-				+ header + content + request + s + end;
-		System.out.print(answer);
-		return answer;
-	}
-
-	/*
-	 * 
-	 */
-	public static String notImplemented(String s) {
-		int len = (header.length() + content.length() + request.length())
-				+ s.length() + 4;
-		return notImplemented + server + contentType + length + len + "\r\n\r\n"
-				+ header + content + request + s + end;
+		String info = server + contentType + length + len + "\r\n\r\n";
+		String resp = header + content + request + s + end;
+		
+		return HTTP + parseRequest(s) + info + resp;
 	}
 	
 	/*
 	 * 
+//	 */
+//	public static String badRequest(String s) {
+//		// compute length of html message to fill-in Content-Length field
+//		
+//		return badRequest + server + contentType + length + len + "\r\n\r\n"
+//				+ header + content + request + s + end;
+//	}
+//
+//	/*
+//	 * 
+//	 */
+//	public static String ok(String s) {
+//		// compute length of html message to fill-in Content-Length field
+//		int len = (header.length() + content.length() + request.length())
+//				+ s.length() + 4;
+//		String answer = ok + server + contentType + length + len + "\r\n\r\n"
+//				+ header + content + request + s + end;
+//		System.out.print(answer);
+//		return answer;
+//	}
+
+	/*
+//	 * 
+//	 */
+//	public static String notImplemented(String s) {
+//		int len = (header.length() + content.length() + request.length())
+//				+ s.length() + 4;
+//		return notImplemented + server + contentType + length + len + "\r\n\r\n"
+//				+ header + content + request + s + end;
+//	}
+//	
+	/*
+	 * 
 	 */
-	public static int parseRequest(String s) {
+	public static String parseRequest(String s) {
 		String splits[];
-		int ret = 200;
+		String ret = new String("200 OK\r\n");
 
 		if (s == null || s.length() <= 0)
-			ret = 400;
+			ret = new String("400 Bad Request\r\n");
 
-		splits = s.split("\\s");
+		String str = s.substring(0, s.indexOf("\r\n"));
+		splits = str.split("\\s");
 		if (splits.length != 3)
-			ret = 400;
+			ret = new String("400 Bad Request\r\n");
 
 		if (!splits[0].equals("GET") || !splits[1].equals("/")
 				|| !splits[2].equals("HTTP/1.1"))
-			ret = 400;
+			ret = new String("400 Bad Request\r\n");
 
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
 				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
 				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT"))
-			ret = 501; // not implemented
+			ret = new String("501 Not Implemented\r\n"); // not implemented
 
 		return ret;
 	}
