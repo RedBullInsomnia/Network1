@@ -37,8 +37,6 @@ public class Worker extends Thread {
 			s.close(); // acknowledge end of connection
 		} catch (Exception any) {
 			System.err.println("worker died " + any);
-		} catch (TimeOutException to) {
-			
 		}
 	}
 }

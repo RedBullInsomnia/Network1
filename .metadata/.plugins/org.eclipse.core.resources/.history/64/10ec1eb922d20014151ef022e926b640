@@ -3,8 +3,7 @@ import java.net.*;
 
 public class Worker extends Thread {
 
-	private Socket s;
-	private int bufferSize = 64;
+	Socket s;
 
 	Worker(Socket _s) {
 		s = _s;
@@ -16,7 +15,7 @@ public class Worker extends Thread {
 			OutputStream out = s.getOutputStream();
 			InputStream in = s.getInputStream();
 			String str = "";
-			byte msg[] = new byte[bufferSize];
+			byte msg[] = new byte[64];
 
 			// wait for request
 			while (true) {
@@ -30,15 +29,13 @@ public class Worker extends Thread {
 			}
 			// handle request
 			str = str.substring(0, str.indexOf("\r\n\r\n") + 4);
-			String answer  = HTTPRequest.echo(str);
-			out.write(answer.getBytes(), 0, answer.length() - 1);
+			out.write(HTTPRequest.echo(str).getBytes(), 0, HTTPRequest
+						.echo(str).length() - 1);
 			out.flush(); // don’t wait for more
 			
 			s.close(); // acknowledge end of connection
 		} catch (Exception any) {
 			System.err.println("worker died " + any);
-		} catch (TimeOutException to) {
-			
 		}
 	}
 }

@@ -21,7 +21,7 @@ public class HTTPRequest {
 	private static String content = "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
 			+ "<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n"
 			+ "Here is the request line and request headers sent by your browser:\r\n";
-	private static String request = "<PRE>\r\n";
+	private static String request = "<PRE>";
 	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
 
 	//

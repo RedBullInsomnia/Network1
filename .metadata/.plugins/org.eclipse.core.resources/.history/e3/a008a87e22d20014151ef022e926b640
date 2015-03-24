@@ -1,6 +1,5 @@
 /**
  * HTTPRequest class
- * 
  * @author Hwk
  *
  */
@@ -10,18 +9,20 @@ public class HTTPRequest {
 
 	// Server and content info
 	private static String server = "Host : EchoServer\r\n";
-	private static String contentType = "Content-Type : text/html\r\n";
+	private static String contentType = 
+			"Content-Type : text/html\r\n";
 	private static String length = "Content-Length: ";
 
 	// HTML doc
-	private static String header = "<HTML>\r\n"
-			+ "  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n"
-			+ "<HEAD>\r\n" + "  <TITLE>EchoServer Results</TITLE>\r\n"
+	private static String header = "<HTML>\r\n" + 
+					"  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n"
+			+ "<HEAD>\r\n"
+			+ "  <TITLE>EchoServer Results</TITLE>\r\n"
 			+ "</HEAD>\r\n\r\n";
 	private static String content = "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
 			+ "<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n"
 			+ "Here is the request line and request headers sent by your browser:\r\n";
-	private static String request = "<PRE>\r\n";
+	private static String request = "<PRE>" ;
 	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
 
 	//
@@ -39,24 +40,24 @@ public class HTTPRequest {
 	 */
 	public static String parseRequest(String s) {
 		String splits[];
-		String ret = "200 OK\r\n";
+		String ret = new String("200 OK\r\n");
 
 		if (s == null || s.length() <= 0)
-			ret = "400 Bad Request\r\n";
+			ret = new String("400 Bad Request\r\n");
 
 		String str = s.substring(0, s.indexOf("\r\n"));
 		splits = str.split("\\s");
 		if (splits.length != 3)
-			ret = "400 Bad Request\r\n";
+			ret = new String("400 Bad Request\r\n");
 
 		if (!splits[0].equals("GET") || !splits[1].equals("/")
 				|| !splits[2].equals("HTTP/1.1"))
-			ret = "400 Bad Request\r\n";
+			ret = new String("400 Bad Request\r\n");
 
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
 				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
-				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT") || splits[0].equals("HEAD"))
-			ret = "501 Not Implemented\r\n";
+				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT"))
+			ret = new String("501 Not Implemented\r\n"); // not implemented
 
 		return ret;
 	}
