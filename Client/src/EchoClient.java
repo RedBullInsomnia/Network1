@@ -8,7 +8,7 @@ public class EchoClient {
 		OutputStream out = s.getOutputStream();
 		InputStream in = s.getInputStream();
 		byte msg[] = new byte[10000];
-		out.write("GET / HTTP1.1\r\n".getBytes("UTF-8"));
+		out.write("GET / HTTP1.1\r\n\r\n".getBytes("UTF-8"));
 		
 		while(in.read(msg) <= 0){;}
 		System.out.print(new String(msg));

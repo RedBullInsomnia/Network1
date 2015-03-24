@@ -1,7 +1,5 @@
 public class HTTPRequest {
-	// HTML Codes
-	private static String HTTP = new String(
-			"HTTP/1.1");
+	private static String HTTP = new String("HTTP/1.1");
 
 	// Server and content info
 	private static String server = new String("Host : EchoServer\r\n");
@@ -24,19 +22,6 @@ public class HTTPRequest {
 	private static String request = new String("<PRE>");
 	private static String end = new String("</PRE>\r\n</BODY>\r\n</HTML>\r\n");
 
-	/*
-	 * 
-//	 */
-//	public static boolean verifyRequest(String s) {
-//		String splits[] = s.split("\\s");
-//
-//		if (splits[0].equals("GET") && splits[1].equals("/")
-//				&& splits[2].equals("HTTP/1.1"))
-//			return true;
-//		else
-//			return false;
-//	}
-//	
 	public static String echo(String s)
 	{
 		int len = (header.length() + content.length() + request.length())
@@ -47,39 +32,6 @@ public class HTTPRequest {
 		return HTTP + parseRequest(s) + info + resp;
 	}
 	
-	/*
-	 * 
-//	 */
-//	public static String badRequest(String s) {
-//		// compute length of html message to fill-in Content-Length field
-//		
-//		return badRequest + server + contentType + length + len + "\r\n\r\n"
-//				+ header + content + request + s + end;
-//	}
-//
-//	/*
-//	 * 
-//	 */
-//	public static String ok(String s) {
-//		// compute length of html message to fill-in Content-Length field
-//		int len = (header.length() + content.length() + request.length())
-//				+ s.length() + 4;
-//		String answer = ok + server + contentType + length + len + "\r\n\r\n"
-//				+ header + content + request + s + end;
-//		System.out.print(answer);
-//		return answer;
-//	}
-
-	/*
-//	 * 
-//	 */
-//	public static String notImplemented(String s) {
-//		int len = (header.length() + content.length() + request.length())
-//				+ s.length() + 4;
-//		return notImplemented + server + contentType + length + len + "\r\n\r\n"
-//				+ header + content + request + s + end;
-//	}
-//	
 	/*
 	 * 
 	 */
@@ -102,7 +54,7 @@ public class HTTPRequest {
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
 				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
 				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT"))
-			ret = new String("501 Not Implemented\r\n"); // not implemented
+			ret = new String("501 Not Implemented\r\n");
 
 		return ret;
 	}
