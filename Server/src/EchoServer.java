@@ -12,6 +12,7 @@ public class EchoServer {
 		while(true)
 		{
 			Socket ts = ss.accept();
+			ts.setSoTimeout(1000);
 			Worker w = new Worker(ts);
 			w.start();
 		}

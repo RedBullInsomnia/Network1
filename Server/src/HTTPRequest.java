@@ -5,28 +5,25 @@
  */
 public class HTTPRequest {
 	// HTML Codes
-	private static String HTTP = new String("HTTP/1.1");
+	private static String HTTP = "HTTP/1.1 ";
 
 	// Server and content info
-	private static String server = new String("Host : EchoServer\r\n");
-	private static String contentType = new String(
-			"Content-Type : text/html\r\n");
-	private static String length = new String("Content-Length: ");
+	private static String server = "Host : EchoServer\r\n";
+	private static String contentType = 
+			"Content-Type : text/html\r\n";
+	private static String length = "Content-Length: ";
 
 	// HTML doc
-	private static String header = new String("<HTML>\r\n")
-			+ new String(
-					"  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n")
-			+ new String("<HEAD>\r\n")
-			+ new String("  <TITLE>EchoServer Results</TITLE>\r\n")
-			+ new String("</HEAD>\r\n\r\n");
-	private static String content = new String("<BODY BGCOLOR=\"#F2F2F2\">\r\n")
-			+ new String(
-					"<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n")
-			+ new String(
-					"Here is the reqest line and request headers sent by your browser:\r\n");
-	private static String request = new String("<PRE>");
-	private static String end = new String("</PRE>\r\n</BODY>\r\n</HTML>\r\n");
+	private static String header = "<HTML>\r\n" + 
+					"  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n"
+			+ "<HEAD>\r\n"
+			+ "  <TITLE>EchoServer Results</TITLE>\r\n"
+			+ "</HEAD>\r\n\r\n";
+	private static String content = "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
+			+ "<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n"
+			+ "Here is the request line and request headers sent by your browser:\r\n";
+	private static String request = "<PRE>" ;
+	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
 
 	//
 	public static String echo(String s) {
@@ -34,7 +31,7 @@ public class HTTPRequest {
 				+ s.length() + 4;
 		String info = server + contentType + length + len + "\r\n\r\n";
 		String resp = header + content + request + s + end;
-
+		System.out.println(HTTP + parseRequest(s) + info + resp);
 		return HTTP + parseRequest(s) + info + resp;
 	}
 
