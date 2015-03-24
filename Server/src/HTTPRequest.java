@@ -1,4 +1,10 @@
+/**
+ * HTTPRequest class
+ * @author Hwk
+ *
+ */
 public class HTTPRequest {
+	// HTML Codes
 	private static String HTTP = new String("HTTP/1.1");
 
 	// Server and content info
@@ -22,16 +28,16 @@ public class HTTPRequest {
 	private static String request = new String("<PRE>");
 	private static String end = new String("</PRE>\r\n</BODY>\r\n</HTML>\r\n");
 
-	public static String echo(String s)
-	{
+	//
+	public static String echo(String s) {
 		int len = (header.length() + content.length() + request.length())
 				+ s.length() + 4;
 		String info = server + contentType + length + len + "\r\n\r\n";
 		String resp = header + content + request + s + end;
-		
+
 		return HTTP + parseRequest(s) + info + resp;
 	}
-	
+
 	/*
 	 * 
 	 */
@@ -54,7 +60,7 @@ public class HTTPRequest {
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
 				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
 				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT"))
-			ret = new String("501 Not Implemented\r\n");
+			ret = new String("501 Not Implemented\r\n"); // not implemented
 
 		return ret;
 	}
