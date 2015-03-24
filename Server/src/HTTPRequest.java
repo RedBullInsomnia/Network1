@@ -39,25 +39,24 @@ public class HTTPRequest {
 	 */
 	public static String parseRequest(String s) {
 		String splits[];
-		String ret = "200 OK\r\n";
 
 		if (s == null || s.length() <= 0)
-			ret = "400 Bad Request\r\n";
-
+			return "400 Bad Request\r\n";
+		
 		String str = s.substring(0, s.indexOf("\r\n"));
 		splits = str.split("\\s");
 		if (splits.length != 3)
-			ret = "400 Bad Request\r\n";
+			return "400 Bad Request\r\n";
 
 		if (!splits[0].equals("GET") || !splits[1].equals("/")
 				|| !splits[2].equals("HTTP/1.1"))
-			ret = "400 Bad Request\r\n";
+			return "400 Bad Request\r\n";
 
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
 				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
 				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT") || splits[0].equals("HEAD"))
-			ret = "501 Not Implemented\r\n";
+			return "501 Not Implemented\r\n";
 
-		return ret;
+		return "200 OK\r\n";
 	}
 }

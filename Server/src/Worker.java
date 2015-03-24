@@ -29,7 +29,7 @@ public class Worker extends Thread {
 					break;
 			}
 			// handle request
-			str = str.substring(0, str.indexOf("\r\n\r\n") + 4);
+			str = str.substring(0, str.indexOf("\r\n\r\n") + 4); 
 			String answer  = HTTPRequest.echo(str);
 			out.write(answer.getBytes(), 0, answer.length() - 1);
 			out.flush(); // don’t wait for more
@@ -37,8 +37,8 @@ public class Worker extends Thread {
 			s.close(); // acknowledge end of connection
 		} catch (Exception any) {
 			System.err.println("worker died " + any);
-		} catch (TimeOutException to) {
+		} /*catch (TimeOutException to) {
 			
-		}
+		}*/
 	}
 }
