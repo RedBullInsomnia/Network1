@@ -21,21 +21,18 @@ public class Worker extends Thread {
 			while (true) {
 				if (in.read(msg) <= 0)
 					continue;
-				str = str + new String(msg);
+				
+				str += new String(msg);
 
 				if (str.contains("\r\n\r\n"))
 					break;				
 			}
 			// handle request
 			str = str.substring(0, str.indexOf("\r\n\r\n") + 4);
-			if (false == Response.verifyRequest(str))
-				out.write(Response.badRequest(str).getBytes(), 0, Response
-						.badRequest(str).length()-1);
-			else
-				out.write(Response.ok(str).getBytes(), 0, Response.ok(str)
-						.length()-1);
-
+			out.write(HTTPRequest.echo(str).getBytes(), 0, HTTPRequest
+						.echo(str).length() - 1);
 			out.flush(); // don’t wait for more
+			
 			s.close(); // acknowledge end of connection
 		} catch (Exception any) {
 			System.err.println("worker died " + any);
