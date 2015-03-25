@@ -25,7 +25,7 @@ public class EchoServer {
 				Worker w = new Worker(ts, n);
 				n++;
 				ts.setSoTimeout(1000);
-				executor.execute(w);
+				executor.submit(w);
 				//w.start();
 			}
 		}

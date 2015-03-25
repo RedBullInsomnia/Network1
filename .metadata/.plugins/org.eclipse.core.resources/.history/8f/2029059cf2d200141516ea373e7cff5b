@@ -16,12 +16,12 @@ public class Worker extends Thread {
 		try {
 			out = s.getOutputStream();
 			in = s.getInputStream();
-		} catch (IOException io1) {
-			System.err.println("Worker " + number + " died: " + io1.getMessage());
+		} catch (IOException io) {
+			System.err.println("Worker " + number + " died: " + io.getMessage());
 			try {
 				s.close();
-			} catch (IOException io2) {
-				System.err.println("Socket error: " + io2.getMessage());
+			} catch (IOException io) {
+				System.err.println("Socket error: " + io.getMessage());
 			}
 		}
 	}
