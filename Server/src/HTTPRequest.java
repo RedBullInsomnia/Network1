@@ -25,7 +25,7 @@ public class HTTPRequest {
 	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
 
 	/*
-	 * Parses and send back request in html code
+	 * Parses and send back request encapsulated in html code
 	 */
 	public static String echo(String s) {
 		int len = (header.length() + content.length() + request.length())
@@ -50,7 +50,7 @@ public class HTTPRequest {
 
 		String str = s.substring(0, s.indexOf("\r\n"));
 		splits = str.split("\\s");
-		if (splits.length != 3)
+		if (splits.length != 3 || !s.contains("Host: "))
 			return "400 Bad Request\r\n";
 
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
