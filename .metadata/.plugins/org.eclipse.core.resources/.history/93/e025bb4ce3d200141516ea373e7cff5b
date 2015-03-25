@@ -1,0 +1,62 @@
+import java.io.*;
+import java.net.*;
+
+public class Worker extends Thread {
+
+	private Socket s;
+	private int bufferSize = 64;
+	OutputStream out;
+	InputStream in;
+
+	Worker(Socket _s) {
+		s = _s;
+		try {
+			out = s.getOutputStream();
+			in = s.getInputStream();
+		} catch (IOException e) {
+			System.err.println("Worker died: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void run() {
+		String str = "";
+		String request = "";
+		byte msg[] = new byte[bufferSize];
+
+		// wait for request
+		try {
+			while (true) {
+				if (in.read(msg) <= 0)
+					continue;
+
+				str += new String(msg);
+
+				// If we received the entire request, we can parse it
+				if (str.contains("\r\n\r\n")) {
+					request = str.substring(0, str.indexOf("\r\n\r\n") + 4);
+					str = str.substring(str.indexOf("\r\n\r\n") + 4, str.length() - 1);
+					String answer = HTTPRequest.echo(str);
+					out.write(answer.getBytes(), 0, answer.length());
+					out.flush(); // don’t wait for more
+
+					// Can we close the connection or not ?
+					if (str.contains("Connection: keep-alive"))
+					{
+						s.setKeepAlive(true);
+						s.setSoTimeout(0);
+					}
+					else
+						break;
+					str = "";
+				}
+			}
+			s.close(); // acknowledge end of connection
+
+		} catch (SocketTimeoutException timeout) {
+			System.err.println("Worker died: " + timeout.getMessage());
+		} catch (IOException io) {
+			System.err.println("Error on socket: " + io.getMessage());
+		}
+	}
+}

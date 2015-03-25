@@ -4,41 +4,83 @@ import java.net.*;
 public class Worker extends Thread {
 
 	private Socket s;
+	private int number;
 	private int bufferSize = 64;
+	OutputStream out;
+	InputStream in;
 
-	Worker(Socket _s) {
+	Worker(Socket _s, int _n) {
 		s = _s;
+		number = _n;
+
+		try {
+			out = s.getOutputStream();
+			in = s.getInputStream();
+		} catch (IOException e) {
+			System.err.println("Worker " + number + " died: " + e.getMessage());
+		}
 	}
 
 	@Override
 	public void run() {
-		try {
-			OutputStream out = s.getOutputStream();
-			InputStream in = s.getInputStream();
-			String str = "";
-			byte msg[] = new byte[bufferSize];
+		String request = "", buffer = "", answer = "";
+		byte msg[] = new byte[bufferSize];
+		int len = 0;
+		boolean keepAlive = false;
 
-			// wait for request
+		System.out.println("Worker " + number + " created");
+		
+		// wait for request
+		try {
 			while (true) {
-				if (in.read(msg) <= 0)
+				// Read incoming bytes
+				len = in.read(msg);
+				if (len <= 0)
 					continue;
 				
-				str += new String(msg);
+				// Add incoming to buffer
+				buffer += new String(msg, 0, len);
 
-				if (str.contains("\r\n\r\n"))
-					break;
+				// If we received the entire request, we can parse it
+				if (buffer.contains("\r\n\r\n")) {
+					request = buffer.substring(0, buffer.indexOf("\r\n\r\n") + 4);
+					if (!buffer.endsWith("\r\n\r\n"))
+						buffer = buffer.substring(buffer.indexOf("\r\n\r\n") + 4,
+								buffer.length());
+					else
+						buffer = "";
+					
+					answer = HTTPRequest.echo(request);
+					out.write(answer.getBytes(), 0, answer.length());
+					out.flush(); // don’t wait for more
+
+					// Can we close the connection or not ?
+					// System.out.print(request);
+					if (request.contains("Connection: keep-alive"))
+					{
+						if (!keepAlive)
+							System.out.println("Keep worker " + number + " alive");
+						//s.setKeepAlive(true);
+						keepAlive = true;
+						s.setSoTimeout(10000);
+					} else {
+						break;
+					}
+				}
 			}
-			// handle request
-			str = str.substring(0, str.indexOf("\r\n\r\n") + 4); 
-			String answer  = HTTPRequest.echo(str);
-			out.write(answer.getBytes(), 0, answer.length() - 1);
-			out.flush(); // don’t wait for more
-			
+			System.out.println("Worker " + number + " closed");
 			s.close(); // acknowledge end of connection
-		} catch (Exception any) {
-			System.err.println("worker died " + any);
-		} /*catch (TimeOutException to) {
-			
-		}*/
+
+		} catch (SocketTimeoutException timeout) {
+			System.err.println("Worker " + number + " died: "
+					+ timeout.getMessage());
+			try {
+				s.close();
+			} catch (IOException io) {
+				System.err.println("Error on socket: " + io.getMessage());
+			}
+		} catch (IOException io) {
+			System.err.println("Error on socket: " + io.getMessage());
+		}
 	}
 }

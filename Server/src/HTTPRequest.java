@@ -24,38 +24,44 @@ public class HTTPRequest {
 	private static String request = "<PRE>\r\n";
 	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
 
-	//
+	/*
+	 * Parses and send back request in html code
+	 */
 	public static String echo(String s) {
 		int len = (header.length() + content.length() + request.length())
 				+ s.length() + 4;
 		String info = server + contentType + length + len + "\r\n\r\n";
 		String resp = header + content + request + s + end;
-		System.out.println(HTTP + parseRequest(s) + info + resp);
+		//System.out.print(HTTP + parseRequest(s) + info + resp);
 		return HTTP + parseRequest(s) + info + resp;
 	}
 
 	/*
-	 * 
+	 * Parse request and return corresponding HTTP code
+	 * 200 if OK
+	 * 400 if Bad Request
+	 * 501 if Not implemented
 	 */
 	public static String parseRequest(String s) {
 		String splits[];
 
 		if (s == null || s.length() <= 0)
 			return "400 Bad Request\r\n";
-		
+
 		String str = s.substring(0, s.indexOf("\r\n"));
 		splits = str.split("\\s");
 		if (splits.length != 3)
 			return "400 Bad Request\r\n";
 
-		if (!splits[0].equals("GET") || !splits[1].equals("/")
-				|| !splits[2].equals("HTTP/1.1"))
-			return "400 Bad Request\r\n";
-
 		if (splits[0].equals("POST") || splits[0].equals("PUT")
 				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
-				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT") || splits[0].equals("HEAD"))
+				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT")
+				|| splits[0].equals("HEAD"))
 			return "501 Not Implemented\r\n";
+		
+		if (!splits[0].equals("GET") || !splits[1].startsWith("/")
+				|| !splits[2].equals("HTTP/1.1"))
+			return "400 Bad Request\r\n";
 
 		return "200 OK\r\n";
 	}
