@@ -1,0 +1,93 @@
+import java.io.*;
+import java.net.*;
+
+public class Worker extends Thread {
+
+	private Socket s;
+	private int number;
+	private int echos;
+	private int bufferSize = 512;
+
+	Worker(Socket _s, int _n) {
+		s = _s;
+		number = _n;
+		echos = 0;
+	}
+
+	@Override
+	public void run() {
+		String request = "", buffer = "", answer = "";
+		byte msg[] = new byte[bufferSize];
+		int len = 0;
+
+		// wait for request
+		System.out.println("Worker " + number + " created");
+		try {
+			InputStream in = s.getInputStream();
+			OutputStream out = s.getOutputStream();
+			
+			while (true) {
+				// Read incoming bytes
+				len = in.read(msg);
+				if (len <= 0)
+					continue;
+
+				// Add incoming to buffer
+				buffer += new String(msg, 0, len);
+
+				// If we received the entire request, we can parse it
+				if (buffer.contains("\r\n\r\n")) {
+					request = buffer.substring(0,
+							buffer.indexOf("\r\n\r\n") + 4);
+					if (!buffer.endsWith("\r\n\r\n")) {
+						buffer = buffer
+								.substring(buffer.indexOf("\r\n\r\n") + 4,
+										buffer.length());
+					} else {
+						buffer = "";
+					}
+
+					// Send back answer
+					answer = HTTPRequest.echo(request);
+					out.write(answer.getBytes(), 0, answer.length());
+					out.flush(); // don’t wait for more
+					ackAnswer();
+
+					// Can we close the connection or not ?
+					if (request.contains("Connection: keep-alive")) {
+						if (!s.getKeepAlive()) {
+							s.setKeepAlive(true);
+							s.setSoTimeout(5000);
+						}
+					} else {
+						break;
+					}
+				}
+			}
+			System.out.println("Worker " + number + " closed");
+			s.close(); // acknowledge end of connection
+
+		} catch (SocketTimeoutException timeout) {
+			System.err.println("Worker " + number + " died: "
+					+ timeout.getMessage());
+			try {
+				s.close();
+			} catch (IOException io) {
+				System.err.println("Error on socket: " + io.getMessage());
+			}
+		} catch (IOException io) {
+			System.err.println("Error on socket: " + io.getMessage());
+		}
+	}
+
+	/*
+	 * Print acknowledgement to terminal If this is printed to the terminal it
+	 * means the request has been sent back
+	 */
+	public void ackAnswer() {
+		echos++;
+		System.out.println("Worker " + number + ": treated " + echos
+				+ " requests");
+	}
+
+}

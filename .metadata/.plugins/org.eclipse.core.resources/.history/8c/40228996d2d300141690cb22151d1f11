@@ -1,0 +1,68 @@
+/**
+ * HTTPRequest class
+ * 
+ * @author Hwk
+ *
+ */
+public class HTTPRequest {
+	// HTML Codes
+	private static String HTTP = "HTTP/1.1 ";
+
+	// Server and content info
+	private static String server = "Host : EchoServer\r\n";
+	private static String contentType = "Content-Type : text/html\r\n";
+	private static String length = "Content-Length: ";
+
+	// HTML doc
+	private static String header = "<HTML>\r\n"
+			+ "  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n"
+			+ "<HEAD>\r\n" + "  <TITLE>EchoServer Results</TITLE>\r\n"
+			+ "</HEAD>\r\n\r\n";
+	private static String content = "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
+			+ "<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n"
+			+ "Here is the request line and request headers sent by your browser:\r\n";
+	private static String request = "<PRE>\r\n";
+	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
+
+	/*
+	 * Parses and send back request encapsulated in html code
+	 */
+	public static String echo(String s) {
+		int len = (header.length() + content.length() + request.length())
+				+ s.length() + end + 4;
+		String info = server + contentType + length + len + "\r\n\r\n";
+		String resp = header + content + request + s + end;
+		//System.out.print(HTTP + parseRequest(s) + info + resp);
+		return HTTP + parseRequest(s) + info + resp;
+	}
+
+	/*
+	 * Parse request and return corresponding HTTP code
+	 * 200 if OK
+	 * 400 if Bad Request
+	 * 501 if Not implemented
+	 */
+	public static String parseRequest(String s) {
+		String splits[];
+
+		if (s == null || s.length() <= 0)
+			return "400 Bad Request\r\n";
+
+		String str = s.substring(0, s.indexOf("\r\n"));
+		splits = str.split("\\s");
+		if (splits.length != 3 || !s.contains("Host: "))
+			return "400 Bad Request\r\n";
+
+		if (splits[0].equals("POST") || splits[0].equals("PUT")
+				|| splits[0].equals("OPTIONS") || splits[0].equals("DELETE")
+				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT")
+				|| splits[0].equals("HEAD"))
+			return "501 Not Implemented\r\n";
+		
+		if (!splits[0].equals("GET") || !splits[1].startsWith("/")
+				|| !splits[2].equals("HTTP/1.1"))
+			return "400 Bad Request\r\n";
+
+		return "200 OK\r\n";
+	}
+}

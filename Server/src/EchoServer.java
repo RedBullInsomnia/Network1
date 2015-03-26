@@ -14,7 +14,7 @@ public class EchoServer {
 	public static void main(String[] args) {
 		int n = 0;
 
-		ExecutorService executor = Executors.newCachedThreadPool();
+		//ExecutorService executor = Executors.newCachedThreadPool();
 
 		try {
 			ServerSocket ss = new ServerSocket(8163);
@@ -22,13 +22,12 @@ public class EchoServer {
 			while (true) {
 				Socket ts = ss.accept();
 				Worker w = new Worker(ts, ++n);
-				ts.setSoTimeout(1000);
-				executor.execute(w);
+				w.start();
 			}
 		} catch (IOException io) {
 			System.err.print("Error on socket: " + io.getMessage());
 		}
-		executor.shutdown();
+		
 	}
 
 }
