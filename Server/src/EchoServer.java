@@ -14,8 +14,6 @@ public class EchoServer {
 	public static void main(String[] args) {
 		int n = 0;
 
-		//ExecutorService executor = Executors.newCachedThreadPool();
-
 		try {
 			ServerSocket ss = new ServerSocket(8163);
 

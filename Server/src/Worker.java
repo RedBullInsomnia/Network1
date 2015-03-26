@@ -8,14 +8,16 @@ import java.net.*;
  */
 public class Worker extends Thread {
 
+	private static int numAlive = 0;
 	private Socket s;
-	private int number;
+	private int num;
 	private int echos;
 	private int bufferSize = 512;
 
 	Worker(Socket _s, int _n) {
 		s = _s;
-		number = _n;
+		num = _n;
+		numAlive++;
 		echos = 0;
 	}
 
@@ -26,7 +28,7 @@ public class Worker extends Thread {
 		int len = 0;
 
 		// wait for request
-		System.out.println("Worker " + number + " created");
+		System.out.println("Worker " + num + " executed");
 		try {
 			s.setSoTimeout(1000);
 			InputStream in = s.getInputStream();
@@ -36,16 +38,20 @@ public class Worker extends Thread {
 				// Read incoming bytes
 				len = in.read(msg);
 				if (len <= 0)
-					continue;
+					break;
 
 				// Add incoming to buffer
 				buffer += new String(msg, 0, len);
-
+				
+				// Bound length
+				if (buffer.length() >= 8096)
+					break;
+				
 				// If we received the entire request, we can parse it
 				if (buffer.contains("\r\n\r\n")) {
 					request = buffer.substring(0,
 							buffer.indexOf("\r\n\r\n") + 4);
-					
+
 					// Reset buffer for future messages
 					if (!buffer.endsWith("\r\n\r\n")) {
 						buffer = buffer
@@ -72,12 +78,10 @@ public class Worker extends Thread {
 					}
 				}
 			}
-			System.out.println("Worker " + number + " closed");
 			s.close(); // acknowledge end of connection
 
 		} catch (SocketTimeoutException timeout) {
-			System.err.println("Worker " + number + " died: "
-					+ timeout.getMessage());
+			System.err.println("Worker " + num + ": " + timeout.getMessage());
 			try {
 				s.close();
 			} catch (IOException io) {
@@ -85,12 +89,14 @@ public class Worker extends Thread {
 			}
 		} catch (IOException io) {
 			System.err.println("Error on socket: " + io.getMessage());
-		} catch (Exception e)
-		{
-			System.err.println("Houston we have a problem");
+		} catch (Exception e) {
+			System.err.println("Houston we have a problem: " + e.getMessage());
+			e.printStackTrace();
 		}
-		
-		System.out.println("Worker " + number + " closed");
+
+		System.out.println("Worker " + num + " closed");
+		numAlive--;
+		System.out.println(numAlive + " workers still alive");
 	}
 
 	/*
@@ -98,8 +104,8 @@ public class Worker extends Thread {
 	 */
 	public void ackAnswer() {
 		echos++;
-		System.out.println("Worker " + number + ": treated " + echos
-				+ " requests");
+		System.out
+				.println("Worker " + num + ": treated " + echos + " requests");
 	}
 
 }
