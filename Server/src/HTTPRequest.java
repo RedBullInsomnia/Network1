@@ -14,32 +14,51 @@ public class HTTPRequest {
 	private static String length = "Content-Length: ";
 
 	// HTML doc
-	private static String header = "<HTML>\r\n"
+	private static String goodAnswer = "<HTML>\r\n"
 			+ "  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n"
-			+ "<HEAD>\r\n" + "  <TITLE>EchoServer Results</TITLE>\r\n"
-			+ "</HEAD>\r\n\r\n";
-	private static String content = "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
+			+ "<HEAD>\r\n"
+			+ "  <TITLE>EchoServer Results</TITLE>\r\n"
+			+ "</HEAD>\r\n\r\n"
+			+ "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
 			+ "<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n"
-			+ "Here is the request line and request headers sent by your browser:\r\n";
-	private static String request = "<PRE>\r\n";
+			+ "Your request was <font color=\"#008000\">good</font> and here are the request line and request headers sent by your browser:\r\n"
+			+ "<PRE>\r\n";
+	private static String badAnswer = "<HTML>\r\n"
+			+ "  <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN>\r\n"
+			+ "<HEAD>\r\n"
+			+ "  <TITLE>EchoServer Results</TITLE>\r\n"
+			+ "</HEAD>\r\n\r\n"
+			+ "<BODY BGCOLOR=\"#F2F2F2\">\r\n"
+			+ "<H1 ALIGN=\"CENTER\"><font color=\"#0B610B\">EchoServer Results</font></H1>\r\n"
+			+ "Your request was <font color=\"#FF0000\">bad</font> but here are the request line and request headers sent by your browser:\r\n"
+			+ "<PRE>\r\n";
 	private static String end = "</PRE>\r\n</BODY>\r\n</HTML>\r\n";
 
 	/*
 	 * Parses and send back request encapsulated in html code
 	 */
 	public static String echo(String s) {
-		int len = (header.length() + content.length() + request.length())
-				+ s.length() + end.length();
+
+		int len;
+		String resp = parseRequest(s);
+		String answer = "";
+		if (resp.equals("200 OK\r\n")) {
+			len = goodAnswer.length() + s.length() + end.length();
+			answer = goodAnswer + s;
+		} else if (resp.equals("400 Bad Request\r\n")) {
+			len = badAnswer.length() + s.length() + end.length();
+			answer = badAnswer + s;
+		} else {
+			len = badAnswer.length() + s.length() + end.length();
+			answer = badAnswer + s;
+		}
 		String info = server + contentType + length + len + "\r\n\r\n";
-		String resp = header + content + request + s + end;
-		return HTTP + parseRequest(s) + info + resp;
+		return HTTP + resp + info + answer + end;
 	}
 
 	/*
-	 * Parse request and return corresponding HTTP code
-	 * 200 if OK
-	 * 400 if Bad Request
-	 * 501 if Not implemented
+	 * Parse request and return corresponding HTTP code 200 if OK 400 if Bad
+	 * Request 501 if Not implemented
 	 */
 	public static String parseRequest(String s) {
 		String splits[];
@@ -57,7 +76,7 @@ public class HTTPRequest {
 				|| splits[0].equals("TRACE") || splits[0].equals("CONNECT")
 				|| splits[0].equals("HEAD"))
 			return "501 Not Implemented\r\n";
-		
+
 		if (!splits[0].equals("GET") || !splits[1].startsWith("/")
 				|| !splits[2].equals("HTTP/1.1"))
 			return "400 Bad Request\r\n";

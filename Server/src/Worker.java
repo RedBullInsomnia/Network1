@@ -26,6 +26,7 @@ public class Worker extends Thread {
 		String request = "", buffer = "", answer = "";
 		byte msg[] = new byte[bufferSize];
 		int len = 0;
+		boolean timeout = false;
 
 		// wait for request
 		System.out.println("Worker " + num + " executed");
@@ -42,11 +43,11 @@ public class Worker extends Thread {
 
 				// Add incoming to buffer
 				buffer += new String(msg, 0, len);
-				
+
 				// Bound length
 				if (buffer.length() >= 8096)
 					break;
-				
+
 				// If we received the entire request, we can parse it
 				if (buffer.contains("\r\n\r\n")) {
 					request = buffer.substring(0,
@@ -80,8 +81,8 @@ public class Worker extends Thread {
 			}
 			s.close(); // acknowledge end of connection
 
-		} catch (SocketTimeoutException timeout) {
-			System.err.println("Worker " + num + ": " + timeout.getMessage());
+		} catch (SocketTimeoutException to) {
+			timeout = true;
 			try {
 				s.close();
 			} catch (IOException io) {
@@ -94,9 +95,7 @@ public class Worker extends Thread {
 			e.printStackTrace();
 		}
 
-		System.out.println("Worker " + num + " closed");
-		numAlive--;
-		System.out.println(numAlive + " workers still alive");
+		ackClose(timeout);
 	}
 
 	/*
@@ -106,6 +105,18 @@ public class Worker extends Thread {
 		echos++;
 		System.out
 				.println("Worker " + num + ": treated " + echos + " requests");
+	}
+
+	/*
+	 * Print that worker finished its work and update numAlive
+	 */
+	public void ackClose(boolean timeout) {
+		if (timeout)
+			System.out.println("Worker " + num + " closed : timeout");
+		else
+			System.out.println("Worker " + num + " closed");
+		numAlive--;
+		System.out.println(numAlive + " workers still alive");
 	}
 
 }
